@@ -4,8 +4,19 @@
   <meta charset="UTF-8">
   <title>STL Viewer</title>
   <style>
-    body { margin:0; overflow:hidden; background:#111; }
-    canvas { display:block; }
+    body {
+      margin:0;
+      background:#111;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+    canvas {
+      display:block;
+      width:800px;
+      height:600px;
+    }
   </style>
 </head>
 <body>
@@ -23,14 +34,17 @@ import * as THREE from 'three';
 import { STLLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/STLLoader.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
 
+const WIDTH = 800;
+const HEIGHT = 600;
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 10000);
+const camera = new THREE.PerspectiveCamera(75, WIDTH / HEIGHT, 0.1, 10000);
 camera.position.set(0, 0, 100);
 
 const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -54,7 +68,6 @@ new STLLoader().load(url, geometry => {
   );
 
   scene.add(mesh);
-
   animate();
 }, undefined, err => {
   console.error(err);
@@ -68,9 +81,9 @@ function animate() {
 }
 
 addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
+  camera.aspect = WIDTH / HEIGHT;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(WIDTH, HEIGHT);
 });
 </script>
 
