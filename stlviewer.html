@@ -1,77 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>STL Viewer</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
+    body { margin:0; overflow:hidden; background:#111; }
+    canvas { display:block; }
   </style>
 </head>
 <body>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
-import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/loaders/STLLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.150.1/build/three.module.js"
+  }
+}
+</script>
 
-// 기본 설정
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/STLLoader.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 10000);
 camera.position.set(0, 0, 100);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// 컨트롤
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// 조명
-const light1 = new THREE.DirectionalLight(0xffffff, 1);
-light1.position.set(1, 1, 1);
-scene.add(light1);
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-const light2 = new THREE.AmbientLight(0x404040);
-scene.add(light2);
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(1, 1, 1);
+scene.add(light);
 
-// 파일 읽기
 const file = new URLSearchParams(location.search).get("file") || "1_button_guard.stl";
 const url = `https://raw.githubusercontent.com/dolce1996/forNangman/main/stl/${file}`;
 
-// STL 로드
-const loader = new STLLoader();
-loader.load(url, (geometry) => {
-
-  geometry.computeBoundingBox();
+new STLLoader().load(url, geometry => {
   geometry.center();
 
-  const material = new THREE.MeshNormalMaterial();
-  const mesh = new THREE.Mesh(geometry, material);
+  const mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshNormalMaterial()
+  );
+
   scene.add(mesh);
 
   animate();
-
-}, undefined, (error) => {
-  console.error("STL 로드 실패:", error);
-  alert("파일을 불러오지 못했습니다.");
+}, undefined, err => {
+  console.error(err);
+  alert("STL 파일을 불러오지 못했습니다.");
 });
 
-// 애니메이션
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
 
-// 리사이즈 대응
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 </script>
 
