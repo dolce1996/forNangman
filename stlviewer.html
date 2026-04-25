@@ -29,9 +29,13 @@
     light.position.set(1,1,1).normalize();
     scene.add(light);
 
-    // STL 파일 불러오기 (raw.githubusercontent.com 주소 사용)
+    // URL 파라미터에서 파일명 읽기
+    const params = new URLSearchParams(window.location.search);
+    const filename = params.get("file") || "1_button_guard.stl"; // 기본값
+
+    // STL 파일 불러오기
     const loader = new THREE.STLLoader();
-    loader.load('https://raw.githubusercontent.com/dolce1996/forNangman/main/stl/1_button_guard.stl', function (geometry) {
+    loader.load(`https://raw.githubusercontent.com/dolce1996/forNangman/main/stl/${filename}`, function (geometry) {
       const material = new THREE.MeshNormalMaterial();
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
