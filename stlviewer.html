@@ -11,15 +11,43 @@
       justify-content:center;
       align-items:center;
       height:100vh;
+      overflow:hidden;
+      font-family:Arial, sans-serif;
     }
+
+    #viewerBox {
+      width:800px;
+      height:600px;
+      position:relative;
+      border:1px solid #333;
+      background:#111;
+    }
+
     canvas {
       display:block;
       width:800px;
       height:600px;
     }
+
+    #downloadBtn {
+      position:fixed;
+      top:12px;
+      right:12px;
+      z-index:100;
+      background:#ffffff;
+      color:#111;
+      padding:8px 12px;
+      border-radius:6px;
+      text-decoration:none;
+      font-size:14px;
+      font-weight:bold;
+    }
   </style>
 </head>
 <body>
+
+<a id="downloadBtn">STL 다운로드</a>
+<div id="viewerBox"></div>
 
 <script type="importmap">
 {
@@ -37,6 +65,15 @@ import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/cont
 const WIDTH = 800;
 const HEIGHT = 600;
 
+const viewerBox = document.getElementById("viewerBox");
+
+const file = new URLSearchParams(location.search).get("file") || "1_button_guard.stl";
+const url = `https://raw.githubusercontent.com/dolce1996/forNangman/main/stl/${file}`;
+
+const downloadBtn = document.getElementById("downloadBtn");
+downloadBtn.href = url;
+downloadBtn.download = file;
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
@@ -45,7 +82,7 @@ camera.position.set(0, 0, 100);
 
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(WIDTH, HEIGHT);
-document.body.appendChild(renderer.domElement);
+viewerBox.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -56,9 +93,6 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
 scene.add(light);
 
-const file = new URLSearchParams(location.search).get("file") || "1_button_guard.stl";
-const url = `https://raw.githubusercontent.com/dolce1996/forNangman/main/stl/${file}`;
-
 new STLLoader().load(url, geometry => {
   geometry.center();
 
@@ -68,6 +102,12 @@ new STLLoader().load(url, geometry => {
   );
 
   scene.add(mesh);
+
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3()).length();
+  camera.position.set(0, 0, size * 1.5);
+  controls.update();
+
   animate();
 }, undefined, err => {
   console.error(err);
@@ -79,12 +119,6 @@ function animate() {
   controls.update();
   renderer.render(scene, camera);
 }
-
-addEventListener('resize', () => {
-  camera.aspect = WIDTH / HEIGHT;
-  camera.updateProjectionMatrix();
-  renderer.setSize(WIDTH, HEIGHT);
-});
 </script>
 
 </body>
